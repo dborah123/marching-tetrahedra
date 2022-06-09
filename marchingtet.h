@@ -9,12 +9,14 @@
 namespace flux {
 class MarchingTet {
 public:
-MarchingTet(const std::vector<int>& sizes, TetFunction function);
+MarchingTet(Grid<Tet> tet_grid, TetFunction& function);
 
 private:
 Grid<Tet>& _tet_grid;
 TetFunction& _function;
-HalfEdgeMesh<Triangle&> _result;
+std::set<HalfEdge*> _inserted_edges;
+HalfEdgeMesh<Triangle> _result;
+
 
 
 };

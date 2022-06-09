@@ -20,7 +20,7 @@ public:
 
 };
 
-class CircleTetFunction : TetFunction {
+class CircleTetFunction : public TetFunction {
 public:
     CircleTetFunction(double radius);
 
