@@ -1,4 +1,4 @@
-add_executable( marchingtets_exe EXCLUDE_FROM_ALL main.cpp  )
+add_executable( marchingtets_exe EXCLUDE_FROM_ALL main.cpp marchingtet.cpp tet-functions.cpp )
 target_link_libraries( marchingtets_exe flux_shared )
 
 target_compile_definitions( marchingtets_exe PUBLIC -DFLUX_FULL_UNIT_TEST=false )

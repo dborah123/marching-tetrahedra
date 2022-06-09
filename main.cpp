@@ -1,13 +1,15 @@
 #include "element.h"
 #include "grid.h"
 #include "webgl.h"
+#include "marchingtet.h"
+#include "tet-functions.h"
 
 using namespace flux;
 
 int
 main(int argc, char *argv[]) {
-    Grid<Tet> tet_grid({5,5,5});
-    Viewer viewer;
-    viewer.add(tet_grid);
-    viewer.run();
+    Grid<Tet> tet_grid({1,1,1});
+    CircleTetFunction function(0.5);
+    MarchingTet m_tet(tet_grid, function);
+    m_tet.marching_tets();
 }
