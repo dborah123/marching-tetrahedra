@@ -13,7 +13,6 @@ CircleTetFunction::operator()(vec3d vertex) const {
      */
     double mag = norm(vertex);
     double dist_to_sphere = mag - _radius;
-    
     return dist_to_sphere;
 }
 
