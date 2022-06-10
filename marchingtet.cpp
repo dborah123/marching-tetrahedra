@@ -7,14 +7,40 @@ namespace flux {
 MarchingTet::MarchingTet(Grid<Tet>& tet_grid, TetFunction& function): 
 _tet_grid(tet_grid),
 _function(function),
-_mesh(3) { }
+_mesh(3) {
+    initialize_edgetable();
+}
+
+void
+MarchingTet::initialize_edgetable() {
+    _edgetable[1]  = 13;
+    _edgetable[14] = 13;
+
+    _edgetable[2]  = 56;
+    _edgetable[13] = 56;
+
+    _edgetable[4]  = 38;
+    _edgetable[11] = 38;
+
+    _edgetable[8]  = 19;
+    _edgetable[7]  = 19;
+
+    _edgetable[3]  = 53;
+    _edgetable[12] = 53;
+
+    _edgetable[5]  = 43;
+    _edgetable[10] = 43;
+
+    _edgetable[6]  = 30;
+    _edgetable[9]  = 30;
+}
 
 void
 MarchingTet::marching_tets() {
     /**
      * Performs the harching tet algorithm using the specified grid and function
      */
-    // Perform preprocessing
+    // Perform preprocessing to get each vertex isovalue
     preprocess_isovalues();
 
     // Loop thru tets
@@ -28,7 +54,7 @@ MarchingTet::marching_tets() {
 void
 MarchingTet::preprocess_isovalues() {
     /**
-     * Calculates isovalues for vertices
+     * Calculates isovalues for vertices, storing them in _isovalue map
      */
     Vertices& vertices = _tet_grid.vertices();
     int num_vertices = vertices.nb();
@@ -39,28 +65,47 @@ MarchingTet::preprocess_isovalues() {
 }
 
 void
-MarchingTet::reconstruct_tet_surface(const int tet_index) {
-    
-    // Loop thru edges in tet
-    // for (int i = 0; i < 3; ++i) {
-    //     for (int j = i+1; j < 4; ++j) {
-    //         int vert_index[2] = {_tet_grid(tet_index, i), _tet_grid(tet_index, j)};
+MarchingTet::reconstruct_tet_surface(int tet_index) {
+    // Getting isovalues of specific tet
+    std::vector<double> tet_isovalues;
+    get_tet_isovalues(tet_index, tet_isovalues);
 
-    //         // Determine if intersection
-    //             // Check if calc has already been performed
-    //         vec3d intersection = get_intersection_point(vert_index[0], vert_index[1]);
-    //         // std::cout << intersection << std::endl;
+    // Getting the case we are in
+    int tet_case = determine_case(tet_isovalues);
+}
 
-    //         // Check if there isn't an intersection
-    //         if ()
-    //     }
-    // }
+void
+MarchingTet::get_tet_isovalues(int tet_index, std::vector<double>& tet_isovalues) {
+    /**
+     * Accumulates isovalues of specific tet into tet_isovalues vector
+     */
+    for (int i = 0; i < 4; ++i) {
+        int vertex_index = _tet_grid(tet_index, i);
+        double vertex_isovalue = _isovalues[vertex_index];
+        tet_isovalues.push_back(vertex_isovalue);
+    }
+}
 
-    // Check cases and determine what to do
+int
+MarchingTet::determine_case(std::vector<double>& tet_isovalues) {
+    /**
+     * Returns case represented by the integer whose bits store which edges are 
+     * intersected. Uses edgetable to assist in this
+     * 
+     * \returns: the case if one. If there is no intersection, then it returns 0
+     */
+    flux_assert(tet_isovalues.size() == 4);
+    int res = 0;
 
-    
+    if (tet_isovalues[0] < 0) res != 1;
+    if (tet_isovalues[1] < 0) res != 2;
+    if (tet_isovalues[2] < 0) res != 4;
+    if (tet_isovalues[3] < 0) res != 8;
 
+    if (_edgetable.find(res) == _edgetable.end()) return 0;
+    int tet_case = _edgetable[res];
 
+    return tet_case;
 }
 
 vec3d
@@ -75,8 +120,8 @@ MarchingTet::get_intersection_point(int v0_index, int v1_index) {
 
     // Getting function values and abs'ing them
     // std::cout << "v0,v1: " << v0 << '\t' << v1 << std::endl;
-    double f0 = _function(v0);
-    double f1 = _function(v1);
+    double f0 = _isovalues[v0_index];
+    double f1 = _isovalues[v1_index];
     double d0 = abs(f0);
     double d1 = abs(f1);
 
