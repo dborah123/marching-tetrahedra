@@ -38,5 +38,27 @@ MarchingTet::reconstruct_tet_surface(const int tet_index) {
     // Check cases adn determine what to do
 }
 
+vec3d
+MarchingTet::get_intersection_point(int v0_index, int v1_index) {
+    /**
+     * Gets intersection point of edge with function
+     */
+    // Getting coordinates of vertices
+    Vertices& vertices =_tet_grid.vertices();
+    vec3d v0(vertices[v0_index]);
+    vec3d v1(vertices[v1_index]);
 
+    // Getting function values and abs'ing them
+    double f0 = _function(v0);
+    double f1 = _function(v1);
+    double d0 = abs(f0);
+    double d1 = abs(f1);
+
+    // Calculating w0 and w1
+    double w0 = (d1) / (d0 + d1);
+    double w1 = (d0) / (d0 + d1);
+
+    vec3d intersection_point = (w0*v0) + (w1*v1);
+    return intersection_point;
+}
 } // flux

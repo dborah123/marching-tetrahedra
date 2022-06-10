@@ -6,13 +6,12 @@ namespace flux {
 CircleTetFunction::CircleTetFunction(double radius) : _radius(radius) { }
 
 double
-CircleTetFunction::operator()(HalfVertex *vertex) const {
+CircleTetFunction::operator()(vec3d vertex) const {
     /**
      * Returns distance from sphere to vertex. Negative if the point is within the
      * sphere and positive if outside of in.
      */
-    vec3d point = vertex->point;
-    double mag = norm(point);
+    double mag = norm(vertex);
     double dist_to_sphere = mag - _radius;
     
     return dist_to_sphere;

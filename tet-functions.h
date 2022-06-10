@@ -11,7 +11,7 @@ public:
     /**
      * \brief Returns the target size at a point x.
      */
-    virtual double operator()( HalfVertex *vertex ) const = 0;
+    virtual double operator()( vec3d vertex ) const = 0;
 
     /**
      * \brief virtual destructor.
@@ -24,7 +24,7 @@ class CircleTetFunction : public TetFunction {
 public:
     CircleTetFunction(double radius);
 
-    double operator()(HalfVertex *vertex) const;
+    double operator()(vec3d vertex) const;
 
 private:
     double _radius;
