@@ -27,12 +27,18 @@ TetFunction& _function;
 std::map<std::set<int>, double> _inserted_edges; // Maps two vertices(edge) to 
                                                  // intersection 
 std::map<int,double> _isovalues;                 // Maps vertex index to isovalue
-std::map<int,int> _edgetable;
 Mesh<Triangle> _mesh;
+
+/* * Tables */
+std::map<int,int> _edgetable;
+std::map<int, std::vector<int>> _triangletable;
+
+/* Initialization Functions */
+void initialize_edgetable();
+void initialize_triangletable();
 
 void preprocess_isovalues();
 vec3d get_intersection_point(int v0_index, int v1_index);
-void initialize_edgetable();
 int determine_case(std::vector<double>& tet_isovalues);
 void get_tet_isovalues(int tet_index, std::vector<double>& tet_isovalues);
 

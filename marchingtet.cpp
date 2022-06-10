@@ -9,6 +9,7 @@ _tet_grid(tet_grid),
 _function(function),
 _mesh(3) {
     initialize_edgetable();
+    initialize_triangletable();
 }
 
 void
@@ -34,6 +35,23 @@ MarchingTet::initialize_edgetable() {
     _edgetable[6]  = 30;
     _edgetable[9]  = 30;
 }
+
+void
+MarchingTet::initialize_triangletable() {
+    /**
+     * Initialize triangle table. This helps with determining the vertices that form 
+     * the triangle(s)
+     */
+    _triangletable[13] = {0, 3, 4};
+    _triangletable[56] = {3, 4, 5};
+    _triangletable[38] = {1, 5, 4};
+    _triangletable[19] = {0, 1, 2};
+
+    _triangletable[53] = {0, 4, 2, 2, 4, 5};
+    _triangletable[43] = {0, 1, 3, 1, 5, 3};
+    _triangletable[30] = {1, 4, 2, 2, 4, 3};
+}
+
 
 void
 MarchingTet::marching_tets() {
