@@ -41,7 +41,7 @@ void preprocess_isovalues();
 vec3d get_intersection_point(int v0_index, int v1_index);
 int determine_case(std::vector<double>& tet_isovalues);
 void get_tet_isovalues(int tet_index, std::vector<double>& tet_isovalues);
-
+void create_triangles(int tet_index, std::vector<int>& triangles_to_create);
 
 };
 

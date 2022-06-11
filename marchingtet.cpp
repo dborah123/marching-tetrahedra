@@ -40,16 +40,22 @@ void
 MarchingTet::initialize_triangletable() {
     /**
      * Initialize triangle table. This helps with determining the vertices that form 
-     * the triangle(s)
+     * the triangle(s). It is important to note that edges are pairs of vertices, 
+     * so 6 ints form a triangle
      */
-    _triangletable[13] = {0, 3, 4};
-    _triangletable[56] = {3, 4, 5};
-    _triangletable[38] = {1, 5, 4};
-    _triangletable[19] = {0, 1, 2};
+    _triangletable[13] = {0,3, 0,2, 0,1};
+    _triangletable[56] = {0,1, 3,1, 1,2};
+    _triangletable[38] = {3,2, 1,2, 0,2};
+    _triangletable[19] = {0,3, 2,3, 1,3};
 
-    _triangletable[53] = {0, 4, 2, 2, 4, 5};
-    _triangletable[43] = {0, 1, 3, 1, 5, 3};
-    _triangletable[30] = {1, 4, 2, 2, 4, 3};
+
+    _triangletable[53] = {0,3, 1,3, 0,2, 0,2, 1,3, 1,2};
+    _triangletable[43] = {0,3, 2,3, 0,1, 2,3, 1,2, 0,1};
+    _triangletable[30] = {2,3, 1,3, 0,2, 0,2, 1,3, 0,1};
+
+    // _triangletable[53] = {0, 4, 2, 2, 4, 5};
+    // _triangletable[43] = {0, 1, 3, 1, 5, 3};
+    // _triangletable[30] = {1, 4, 2, 2, 4, 3};
 }
 
 
@@ -88,8 +94,11 @@ MarchingTet::reconstruct_tet_surface(int tet_index) {
     std::vector<double> tet_isovalues;
     get_tet_isovalues(tet_index, tet_isovalues);
 
-    // Getting the case we are in
-    int tet_case = determine_case(tet_isovalues);
+    // Getting the case we are in. Returning if no intersections in tet
+    int tet_case;
+    if (!(tet_case = determine_case(tet_isovalues))) return;
+
+    std::vector<int> triangles_to_create = _triangletable[tet_case];
 }
 
 void
@@ -155,5 +164,40 @@ MarchingTet::get_intersection_point(int v0_index, int v1_index) {
     vec3d intersection_point = v0 + v1;
 
     return intersection_point;
+}
+
+
+void
+MarchingTet::create_triangles(int tet_index, std::vector<int>& triangles_to_create) {
+    /**
+     * Create triangles in tet (denoted by tet_index). Triangle framework determined by
+     * triangles_to_create
+     */
+    // Performing checks for size of triangles to create
+    int size_ttc = triangles_to_create.size();
+    flux_assert(size_ttc == 6 || size_ttc == 12);
+    flux_assert(size_ttc % 3 == 0);
+
+    // Getting start of index of vertices
+    Vertices& vertices = _mesh.vertices();
+    int vertices_index_start = vertices.nb();
+
+    // Add triangles
+    int tri_indices[3];
+    for (int i = 0; i < size_ttc / 6; i++) { // Thru # of triangles (1 or 2)
+        for (int j = 0; j < 6; j+=2) {
+            // Getting indices from triangles_to_create
+            int index0 = triangles_to_create[(j + (i*3))];
+            int index1 = triangles_to_create[(j + (i*3) + 1)];
+
+            // Getting indices of vertices in _tet_grid
+            int v0_index = _tet_grid(tet_index, index0);
+            int v1_index = _tet_grid(tet_index, index1);
+            vec3d point = get_intersection_point(v0_index, v1_index);
+        }
+    }
+
+    
+
 }
 } // flux
