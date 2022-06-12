@@ -29,7 +29,7 @@ std::map<std::set<int>, double> _inserted_edges; // Maps two vertices(edge) to
 std::map<int,double> _isovalues;                 // Maps vertex index to isovalue
 Mesh<Triangle> _mesh;
 
-/* * Tables */
+/* Tables */
 std::map<int,int> _edgetable;
 std::map<int, std::vector<int>> _triangletable;
 
@@ -42,6 +42,7 @@ vec3d get_intersection_point(int v0_index, int v1_index);
 int determine_case(std::vector<double>& tet_isovalues);
 void get_tet_isovalues(int tet_index, std::vector<double>& tet_isovalues);
 void create_triangles(int tet_index, std::vector<int>& triangles_to_create);
+int add_vertex_to_mesh(int tet_index, int index0, int index1);
 
 };
 

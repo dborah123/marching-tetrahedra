@@ -166,7 +166,6 @@ MarchingTet::get_intersection_point(int v0_index, int v1_index) {
     return intersection_point;
 }
 
-
 void
 MarchingTet::create_triangles(int tet_index, std::vector<int>& triangles_to_create) {
     /**
@@ -176,28 +175,52 @@ MarchingTet::create_triangles(int tet_index, std::vector<int>& triangles_to_crea
     // Performing checks for size of triangles to create
     int size_ttc = triangles_to_create.size();
     flux_assert(size_ttc == 6 || size_ttc == 12);
-    flux_assert(size_ttc % 3 == 0);
+    flux_assert(size_ttc % 6 == 0);
 
-    // Getting start of index of vertices
     Vertices& vertices = _mesh.vertices();
-    int vertices_index_start = vertices.nb();
 
-    // Add triangles
+    // Add triangles to mesh
     int tri_indices[3];
+    int mesh_index;
     for (int i = 0; i < size_ttc / 6; i++) { // Thru # of triangles (1 or 2)
         for (int j = 0; j < 6; j+=2) {
             // Getting indices from triangles_to_create
-            int index0 = triangles_to_create[(j + (i*3))];
-            int index1 = triangles_to_create[(j + (i*3) + 1)];
+            int index0 = triangles_to_create[(j + (i*6))];
+            int index1 = triangles_to_create[(j + (i*6) + 1)];
 
-            // Getting indices of vertices in _tet_grid
-            int v0_index = _tet_grid(tet_index, index0);
-            int v1_index = _tet_grid(tet_index, index1);
-            vec3d point = get_intersection_point(v0_index, v1_index);
+            // Translating index to _tet_grid vertex index and then creating new vertex
+            mesh_index = add_vertex_to_mesh(tet_index, index0, index1);
+            tri_indices[j/2] = mesh_index;
         }
+        // Adding new triangle to mesh
+        _mesh.add(tri_indices);
     }
-
-    
-
+    //samson III
 }
+
+int
+MarchingTet::add_vertex_to_mesh(int tet_index, int index0, int index1) {
+    /**
+     * PARAMS:
+     * tet_index: the index that refers to the tet in _tet_grid
+     * index0: the 0th vertex index relative to the tet
+     * index1: the 1st vertex index relative to the tet
+     * 
+     * RETURNS:
+     * index of the new vertex in _mesh
+     */
+    // Getting indices of vertices in _tet_grid
+    int v0_index = _tet_grid(tet_index, index0);
+    int v1_index = _tet_grid(tet_index, index1);
+
+    std::set<int> vertices({v0_index, v1_index});
+
+    if (_inserted_edges.find(vertices) != _inserted_edges.end())
+        return _inserted_edges[vertices];
+
+    vec3d new_point = get_intersection_point(v0_index, v1_index);
+    _mesh.vertices().add(new_point.data());
+    return _mesh.vertices().nb() - 1;
+}
+
 } // flux
