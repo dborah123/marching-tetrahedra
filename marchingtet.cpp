@@ -1,5 +1,6 @@
 #include "marchingtet.h"
 #include "halfedges.h"
+#include "webgl.h"
 #include <cmath>
 
 namespace flux {
@@ -58,19 +59,18 @@ MarchingTet::initialize_triangletable() {
     // _triangletable[30] = {1, 4, 2, 2, 4, 3};
 }
 
-
 void
 MarchingTet::marching_tets() {
     /**
      * Performs the harching tet algorithm using the specified grid and function
      */
-    // Perform preprocessing to get each vertex isovalue
+    // Perform preprocessing to get each vertex's isovalue
     preprocess_isovalues();
 
     // Loop thru tets
     int num_tets = _tet_grid.nb();
     for (int i = 0; i < num_tets; ++i) {
-        // Examine the tet and its edges
+        // Create triangle(s) in tet
         reconstruct_tet_surface(i);
     }
 }
@@ -99,6 +99,7 @@ MarchingTet::reconstruct_tet_surface(int tet_index) {
     if (!(tet_case = determine_case(tet_isovalues))) return;
 
     std::vector<int> triangles_to_create = _triangletable[tet_case];
+    create_triangles(tet_index, triangles_to_create);
 }
 
 void
@@ -124,10 +125,10 @@ MarchingTet::determine_case(std::vector<double>& tet_isovalues) {
     flux_assert(tet_isovalues.size() == 4);
     int res = 0;
 
-    if (tet_isovalues[0] < 0) res != 1;
-    if (tet_isovalues[1] < 0) res != 2;
-    if (tet_isovalues[2] < 0) res != 4;
-    if (tet_isovalues[3] < 0) res != 8;
+    if (tet_isovalues[0] < 0) res |= 1;
+    if (tet_isovalues[1] < 0) res |= 2;
+    if (tet_isovalues[2] < 0) res |= 4;
+    if (tet_isovalues[3] < 0) res |= 8;
 
     if (_edgetable.find(res) == _edgetable.end()) return 0;
     int tet_case = _edgetable[res];
@@ -177,8 +178,6 @@ MarchingTet::create_triangles(int tet_index, std::vector<int>& triangles_to_crea
     flux_assert(size_ttc == 6 || size_ttc == 12);
     flux_assert(size_ttc % 6 == 0);
 
-    Vertices& vertices = _mesh.vertices();
-
     // Add triangles to mesh
     int tri_indices[3];
     int mesh_index;
@@ -188,6 +187,8 @@ MarchingTet::create_triangles(int tet_index, std::vector<int>& triangles_to_crea
             int index0 = triangles_to_create[(j + (i*6))];
             int index1 = triangles_to_create[(j + (i*6) + 1)];
 
+            std::cout << "rbo" << std::endl;
+
             // Translating index to _tet_grid vertex index and then creating new vertex
             mesh_index = add_vertex_to_mesh(tet_index, index0, index1);
             tri_indices[j/2] = mesh_index;
@@ -195,7 +196,11 @@ MarchingTet::create_triangles(int tet_index, std::vector<int>& triangles_to_crea
         // Adding new triangle to mesh
         _mesh.add(tri_indices);
     }
-    //samson III
+
+    for (int i = 0; i < 3; ++i) {
+        std::cout << "kiss" << std::endl;
+    }
+    // return samson III
 }
 
 int
@@ -215,12 +220,25 @@ MarchingTet::add_vertex_to_mesh(int tet_index, int index0, int index1) {
 
     std::set<int> vertices({v0_index, v1_index});
 
+    // If point has already been create, return its vertex
     if (_inserted_edges.find(vertices) != _inserted_edges.end())
         return _inserted_edges[vertices];
 
+    // Get intersection point and add new point to _mesh vertices
     vec3d new_point = get_intersection_point(v0_index, v1_index);
     _mesh.vertices().add(new_point.data());
-    return _mesh.vertices().nb() - 1;
+
+    // Get new vertex's index, add to _inserted_edges and return
+    int new_vertex_index = _mesh.vertices().nb();
+    _inserted_edges[vertices] = new_vertex_index;
+    return new_vertex_index;
 }
 
+
+void
+MarchingTet::run_viewer() {
+    Viewer viewer;
+    viewer.add(_mesh);
+    viewer.run();
+}
 } // flux
