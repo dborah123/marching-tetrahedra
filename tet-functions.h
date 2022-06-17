@@ -28,6 +28,7 @@ public:
 
 private:
     double _radius;
+    vec3d _center;
 };
 
 }
