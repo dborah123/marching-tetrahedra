@@ -44,7 +44,7 @@ MarchingTet::initialize_triangletable() {
      * the triangle(s). It is important to note that edges are pairs of vertices, 
      * so 6 ints form a triangle
      */
-    _triangletable[13] = {0,3, 0,2, 0,1};
+    _triangletable[13] = {0,3, 0,1, 0,2};
     _triangletable[56] = {0,1, 3,1, 1,2};
     _triangletable[38] = {3,2, 1,2, 0,2};
     _triangletable[19] = {0,3, 2,3, 1,3};
@@ -93,10 +93,12 @@ MarchingTet::reconstruct_tet_surface(int tet_index) {
     // Getting isovalues of specific tet
     std::vector<double> tet_isovalues;
     get_tet_isovalues(tet_index, tet_isovalues);
+    std::cout << "tet_isovalues: " << tet_isovalues[0] << ' ' << tet_isovalues[1] << ' ' << tet_isovalues[2] << ' '  << tet_isovalues[3] << std::endl;
 
     // Getting the case we are in. Returning if no intersections in tet
     int tet_case;
     if (!(tet_case = determine_case(tet_isovalues))) return;
+    std::cout << tet_case << std::endl;
 
     std::vector<int> triangles_to_create = _triangletable[tet_case];
     create_triangles(tet_index, triangles_to_create);
@@ -187,18 +189,14 @@ MarchingTet::create_triangles(int tet_index, std::vector<int>& triangles_to_crea
             int index0 = triangles_to_create[(j + (i*6))];
             int index1 = triangles_to_create[(j + (i*6) + 1)];
 
-            std::cout << "rbo" << std::endl;
-
             // Translating index to _tet_grid vertex index and then creating new vertex
             mesh_index = add_vertex_to_mesh(tet_index, index0, index1);
+            std::cout << "mesh index: " << mesh_index << '\t' << j/2 << std::endl;
             tri_indices[j/2] = mesh_index;
         }
         // Adding new triangle to mesh
         _mesh.add(tri_indices);
-    }
-
-    for (int i = 0; i < 3; ++i) {
-        std::cout << "kiss" << std::endl;
+        std::cout << "New Triangle: " << tri_indices[0] << ' ' << tri_indices[1] << ' ' << tri_indices[2] << std::endl;
     }
     // return samson III
 }
@@ -220,16 +218,17 @@ MarchingTet::add_vertex_to_mesh(int tet_index, int index0, int index1) {
 
     std::set<int> vertices({v0_index, v1_index});
 
-    // If point has already been create, return its vertex
+    // If point has already been created, return its vertex
     if (_inserted_edges.find(vertices) != _inserted_edges.end())
         return _inserted_edges[vertices];
 
     // Get intersection point and add new point to _mesh vertices
     vec3d new_point = get_intersection_point(v0_index, v1_index);
+    std::cout << "new_point: " << new_point << "with indices: " << v0_index << ' ' << v1_index << std::endl;
+    int new_vertex_index = _mesh.vertices().nb();
     _mesh.vertices().add(new_point.data());
 
     // Get new vertex's index, add to _inserted_edges and return
-    int new_vertex_index = _mesh.vertices().nb();
     _inserted_edges[vertices] = new_vertex_index;
     return new_vertex_index;
 }
