@@ -93,7 +93,7 @@ MarchingTet::reconstruct_tet_surface(int tet_index) {
     // Getting isovalues of specific tet
     std::vector<double> tet_isovalues;
     get_tet_isovalues(tet_index, tet_isovalues);
-    std::cout << "tet_isovalues: " << tet_isovalues[0] << ' ' << tet_isovalues[1] << ' ' << tet_isovalues[2] << ' '  << tet_isovalues[3] << std::endl;
+    // std::cout << "tet_isovalues: " << tet_isovalues[0] << ' ' << tet_isovalues[1] << ' ' << tet_isovalues[2] << ' '  << tet_isovalues[3] << std::endl;
 
     // Getting the case we are in. Returning if no intersections in tet
     int tet_case;
@@ -145,21 +145,23 @@ MarchingTet::get_intersection_point(int v0_index, int v1_index) {
      */
     // Getting coordinates of vertices
     Vertices& vertices =_tet_grid.vertices();
+    // vec3d v0(vertices[v0_index]);
+    // vec3d v1(vertices[v1_index]);
     vec3d v0(vertices[v0_index]);
     vec3d v1(vertices[v1_index]);
 
     // Getting function values and abs'ing them
-    // std::cout << "v0,v1: " << v0 << '\t' << v1 << std::endl;
     double f0 = _isovalues[v0_index];
     double f1 = _isovalues[v1_index];
-    double d0 = abs(f0);
-    double d1 = abs(f1);
+
+    double d0 = std::abs(f0);
+    double d1 = std::abs(f1);
 
     // Calculating w0 and w1
     double w0 = (d1) / (d0 + d1);
     double w1 = (d0) / (d0 + d1);
 
-    for (int i = 0; i < 3; ++i) {
+    for ( int i = 0; i < 3; ++i) {
         v0[i] *= w0;
         v1[i] *= w1;
     }
@@ -191,12 +193,12 @@ MarchingTet::create_triangles(int tet_index, std::vector<int>& triangles_to_crea
 
             // Translating index to _tet_grid vertex index and then creating new vertex
             mesh_index = add_vertex_to_mesh(tet_index, index0, index1);
-            std::cout << "mesh index: " << mesh_index << '\t' << j/2 << std::endl;
+            // std::cout << "mesh index: " << mesh_index << '\t' << j/2 << std::endl;
             tri_indices[j/2] = mesh_index;
         }
         // Adding new triangle to mesh
         _mesh.add(tri_indices);
-        std::cout << "New Triangle: " << tri_indices[0] << ' ' << tri_indices[1] << ' ' << tri_indices[2] << std::endl;
+        // std::cout << "New Triangle: " << tri_indices[0] << ' ' << tri_indices[1] << ' ' << tri_indices[2] << std::endl;
     }
     // return samson III
 }
@@ -213,6 +215,7 @@ MarchingTet::add_vertex_to_mesh(int tet_index, int index0, int index1) {
      * index of the new vertex in _mesh
      */
     // Getting indices of vertices in _tet_grid
+    // std::cout << "Regular indices: " << index0 << ' ' << index1 << std::endl;
     int v0_index = _tet_grid(tet_index, index0);
     int v1_index = _tet_grid(tet_index, index1);
 
@@ -224,7 +227,7 @@ MarchingTet::add_vertex_to_mesh(int tet_index, int index0, int index1) {
 
     // Get intersection point and add new point to _mesh vertices
     vec3d new_point = get_intersection_point(v0_index, v1_index);
-    std::cout << "new_point: " << new_point << "with indices: " << v0_index << ' ' << v1_index << std::endl;
+    // std::cout << "new_point: " << new_point << "with indices: " << v0_index << ' ' << v1_index << std::endl;
     int new_vertex_index = _mesh.vertices().nb();
     _mesh.vertices().add(new_point.data());
 

@@ -8,7 +8,7 @@ using namespace flux;
 
 int
 main(int argc, char *argv[]) {
-    Grid<Tet> tet_grid({1,1,1});
+    Grid<Tet> tet_grid({5,5,5});
     CircleTetFunction function(0.5);
     MarchingTet m_tet(tet_grid, function);
     m_tet.marching_tets();
