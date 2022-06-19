@@ -1,6 +1,7 @@
 #include "marchingtet.h"
 #include "halfedges.h"
 #include "webgl.h"
+#include "predicates.h"
 #include <cmath>
 
 namespace flux {
@@ -54,9 +55,6 @@ MarchingTet::initialize_triangletable() {
     _triangletable[43] = {0,3, 2,3, 0,1, 2,3, 1,2, 0,1};
     _triangletable[30] = {2,3, 1,3, 0,2, 0,2, 1,3, 0,1};
 
-    // _triangletable[53] = {0, 4, 2, 2, 4, 5};
-    // _triangletable[43] = {0, 1, 3, 1, 5, 3};
-    // _triangletable[30] = {1, 4, 2, 2, 4, 3};
 }
 
 void
@@ -85,7 +83,6 @@ MarchingTet::preprocess_isovalues() {
     
     for (int i = 0; i < num_vertices; ++i) {
         _isovalues[i] = _function(vertices[i]);
-        std::cout << _isovalues[i] << std::endl;
     }
 }
 
@@ -195,6 +192,7 @@ MarchingTet::create_triangles(int tet_index, std::vector<int>& triangles_to_crea
             tri_indices[j/2] = mesh_index;
         }
         // Adding new triangle to mesh
+        // orient3d()
         _mesh.add(tri_indices);
     }
     // return samson III
