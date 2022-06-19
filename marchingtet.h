@@ -44,6 +44,9 @@ void get_tet_isovalues(int tet_index, std::vector<double>& tet_isovalues);
 void create_triangles(int tet_index, std::vector<int>& triangles_to_create);
 int add_vertex_to_mesh(int tet_index, int index0, int index1);
 
+int check_orientation(int *tri_indices);
+void change_orientation(int *tri_indices);
+
 };
 
 

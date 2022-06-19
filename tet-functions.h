@@ -8,10 +8,8 @@ namespace flux {
 
 class TetFunction {
 public:
-    /**
-     * \brief Returns the target size at a point x.
-     */
-    virtual double operator()( vec3d vertex ) const = 0;
+    virtual double operator()( vec3d vertex ) = 0;
+    virtual double *get_center() = 0;
 
     /**
      * \brief virtual destructor.
@@ -20,15 +18,16 @@ public:
 
 };
 
-class CircleTetFunction : public TetFunction {
+class SphereTetFunction : public TetFunction {
 public:
-    CircleTetFunction(double radius);
+    SphereTetFunction(double radius, double *center);
 
-    double operator()(vec3d vertex) const;
+    double operator()(vec3d vertex);
+    double *get_center();
 
 private:
     double _radius;
-    vec3d _center;
+    double _center[3];
 };
 
 }

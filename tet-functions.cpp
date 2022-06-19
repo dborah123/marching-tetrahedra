@@ -3,23 +3,34 @@
 
 namespace flux {
 
-CircleTetFunction::CircleTetFunction(double radius) :
+double *
+SphereTetFunction::get_center() {
+    return _center;
+}
+
+SphereTetFunction::SphereTetFunction(double radius, double *center) :
 _radius(radius)
-{
-    vec3d center({0.5, 0.5, 0.5});
-    _center = center;
+{ 
+    for (int i = 0; i < 3; ++i) 
+        _center[i] = center[i];
 }
 
 double
-CircleTetFunction::operator()(vec3d vertex) const {
+SphereTetFunction::operator()(vec3d vertex) {
     /**
      * Returns distance from sphere to vertex. Negative if the point is within the
      * sphere and positive if outside of in.
      */
-    vec3d difference = vertex - _center;
+    // Getting center
+    double *center = get_center();
+    vec3d center_vec(center);
+
+    vec3d difference = vertex - center_vec;
     double center_to_vertex = norm(difference);
     double dist_to_sphere = center_to_vertex - _radius;
+
     return dist_to_sphere;
 }
+
 
 } // flux

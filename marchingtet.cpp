@@ -191,8 +191,10 @@ MarchingTet::create_triangles(int tet_index, std::vector<int>& triangles_to_crea
             mesh_index = add_vertex_to_mesh(tet_index, index0, index1);
             tri_indices[j/2] = mesh_index;
         }
+        // Checking orientation
+        if (check_orientation(tri_indices)) change_orientation(tri_indices);
+
         // Adding new triangle to mesh
-        // orient3d()
         _mesh.add(tri_indices);
     }
     // return samson III
@@ -229,6 +231,43 @@ MarchingTet::add_vertex_to_mesh(int tet_index, int index0, int index1) {
     return new_vertex_index;
 }
 
+int
+MarchingTet::check_orientation(int *tri_indices) {
+    /**
+     * Checks to see if the triangles are oriented correctly. Uses orient3d to make
+     * sure no negative area is created
+     * 
+     * PARAMS: tri_indices must be an array of length 3 of the three inidices of 
+     * vertices for new triangle
+     * 
+     * RETURNS: 0 if oriented correctly and 1 if it isn't
+     */
+    Vertices& vertices = _mesh.vertices();
+
+    // Getting vertex indices
+    int v0_index = tri_indices[0];
+    int v1_index = tri_indices[1];
+    int v2_index = tri_indices[2];
+
+    // Getting pointers to vertices
+    double *v0 = vertices[v0_index];
+    double *v1 = vertices[v1_index];
+    double *v2 = vertices[v2_index];
+    const double *center = _function.get_center();
+
+    if (orient3d(v0, v1, v2, center) >= 0) return 0;
+    return 1;
+}
+
+void
+MarchingTet::change_orientation(int *tri_indices) {
+    /**
+     * Changes the ordering of the vertex indices, altering their orientation
+     */
+    int index0_placeholder = tri_indices[0];
+    tri_indices[0] = tri_indices[2];
+    tri_indices[2] = index0_placeholder;
+}
 
 void
 MarchingTet::run_viewer() {
