@@ -31,7 +31,7 @@ These results will only be focused on a sphere function as our analytic function
 ![3x3x3](./marching-meshes/3x3x3.png)
 
 ### **5x5x5 Tet Grid**
-![5x5x5](./marching-meshes/50x50x50.png)
+![5x5x5](./marching-meshes/5x5x5.png)
 
 ### **10x10x10 Tet Grid**
 ![10x10x10](./marching-meshes/10x10x10.png)
