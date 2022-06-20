@@ -8,7 +8,7 @@ using namespace flux;
 
 int
 main(int argc, char *argv[]) {
-    Grid<Tet> tet_grid({5,5,5});
+    Grid<Tet> tet_grid({50,50,50});
 
     // Defining function
     double center[3] = {0.5, 0.5, 0.5};
