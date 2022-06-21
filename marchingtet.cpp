@@ -275,4 +275,9 @@ MarchingTet::run_viewer() {
     viewer.add(_mesh);
     viewer.run();
 }
+
+Mesh<Triangle>&
+MarchingTet::get_mesh() {
+    return _mesh;
+}
 } // flux

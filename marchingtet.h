@@ -15,7 +15,7 @@ MarchingTet(Grid<Tet>& tet_grid, TetFunction& function);
 void marching_tets();
 
 /* Utility Functions */
-Mesh<Triangle> get_mesh();
+Mesh<Triangle>& get_mesh();
 HalfEdgeMesh<Triangle> get_halfmesh();
 void run_viewer();
 

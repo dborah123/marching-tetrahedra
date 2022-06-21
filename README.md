@@ -15,14 +15,14 @@ The initial step of this algorithm is to define a grid of tetrahedra. Looping th
   
 **In simpler terms:**
 1. Initialize hashtables that correspond to the specific case the edges are in and what triangles that each case should produce as a result
-2. Perform preprocessing for each vertex's isovalues
+2. Perform preprocessing for each vertex's isovalue
 3. Loop through each tetrahedra:
-   1. Retrieve vector of isovalues for each vertex
+   1. Retrieve vector of isovalues for each vertex in tetrahedra
    2. Determine which case the tetrahedra is in
    3. If tetrahedra does intersect with sphere, add intersections to the mesh and create a triangle/triangles
 
 ## **Results:**
-These results will only be focused on a sphere function as our analytic function. With this, our only input that changes is the dimensions of the tetrahedron grid that assists in the creation of the sphere. The higher number of tetrahedra, the higher number of triangles in teh resulting sphere mesh.
+These results will only be focused on a sphere function as our analytic function. With this, our only input that changes is the dimensions of the tetrahedron grid that assists in the creation of the sphere. The higher number of tetrahedra, the higher number of triangles in the resulting sphere mesh.
 
 ### **2x2x2 Tet Grid**
 ![2x2x2](./marching-meshes/2x2x2.png)
