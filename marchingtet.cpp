@@ -85,6 +85,9 @@ MarchingTet::preprocess_isovalues() {
 
     for (int i = 0; i < num_vertices; ++i) {
         function_value = _function(vertices[i]);
+        if (function_value == 0.0) {
+            _zero_isovalue_points[i] = -1;
+        }
         _isovalues[i] = function_value;
     }
 }
@@ -228,23 +231,8 @@ MarchingTet::add_vertex_to_mesh(int tet_index, int index0, int index1) {
 
     int new_vertex_index = _mesh.vertices().nb();
 
-    // If intersection with function is a point exactly, return point's index 
-    // if already created
-    // if (_zero_isovalue_points.find(v0_index) != _zero_isovalue_points.end()) {
-    //     if (_zero_isovalue_points[v0_index] > -1) {
-    //         return _zero_isovalue_points[v0_index];
-    //     } else {
-    //         _zero_isovalue_points[v0_index] = new_vertex_index;
-    //     }
-    // }
-
-    // if (_zero_isovalue_points.find(v1_index) != _zero_isovalue_points.end()) {
-    //     if (_zero_isovalue_points[v1_index] > -1) {
-    //         return _zero_isovalue_points[v1_index];
-    //     } else {
-    //         _zero_isovalue_points[v1_index] = new_vertex_index;
-    //     }
-    // }
+    int res = check_zero_isovalues(v0_index, v1_index, new_vertex_index);
+    if (res > -1) return res;
 
     // Get intersection point and add new point to _mesh vertices
     vec3d new_point = get_intersection_point(v0_index, v1_index);
@@ -294,6 +282,39 @@ MarchingTet::change_orientation(int *tri_indices) {
     tri_indices[2] = index0_placeholder;
 }
 
+int
+MarchingTet::check_zero_isovalues(
+    int v0_index,
+    int v1_index,
+    int new_vertex_index
+) {
+    /**
+     * PARAMS:
+     * v0_index: is the first vertex index we are checking that composes this edge
+     * v1_index: is the second vertex index to check
+     * 
+     * RETURNS:
+     * If vertex already exists, return its index in mesh. If vertex intersects but
+     * vertex hasn't been created yet, return -1. If vertex doesn't intersect, return -2
+     */
+    if (_zero_isovalue_points.find(v0_index) != _zero_isovalue_points.end()) {
+        if (_zero_isovalue_points[v0_index] > -1) {
+            return _zero_isovalue_points[v0_index];
+        }
+        _zero_isovalue_points[v0_index] = new_vertex_index;
+        return -1;
+    }
+
+    if (_zero_isovalue_points.find(v1_index) != _zero_isovalue_points.end()) {
+        if (_zero_isovalue_points[v1_index] > -1) {
+            return _zero_isovalue_points[v1_index];
+        }
+        _zero_isovalue_points[v1_index] = new_vertex_index;
+        return -1;
+    }
+    return -2;
+}
+
 void
 MarchingTet::run_viewer() {
     Viewer viewer;
@@ -304,5 +325,46 @@ MarchingTet::run_viewer() {
 Mesh<Triangle>&
 MarchingTet::get_mesh() {
     return _mesh;
+}
+
+void
+MarchingTet::test_validity() {
+    std::cout << "STATISTICS: " << '\n';
+    std::cout << "triangles: " << _mesh.nb() << '\t';
+    std::cout << "vertices: " << _mesh.vertices().nb() << '\n';
+
+    std::map<int, int> vertex_map;
+    int res;
+    for (int i = 0; i < _mesh.nb(); ++i) {
+        for (int j = 0; j < 3; ++j) {
+            res = _mesh(i, j);
+            if (res == 347) {
+                std::cout << "Triangle caught: ";
+                for (int k = 0; k < 3; ++k) {
+                    std::cout << _mesh(i, k) << '\t';
+                }
+                std::cout << '\n' << '\n';
+            }
+            if (vertex_map.find(res) == vertex_map.end()) {
+                vertex_map[res] = 1;
+            } else {
+                vertex_map[res]++;
+            }
+        }
+    }
+
+    // std::cout << vertex_map[347] << std::endl;
+
+    for (auto iter = vertex_map.begin(); iter != vertex_map.end(); iter++) {
+        // if (iter->second < 5) {
+        //     std::cout << iter->first << std::endl;
+        // }
+
+        if (iter->second > 12) {
+            std::cout << iter->first << '\t' << iter->second << std::endl;
+        }
+    }
+
+
 }
 } // flux

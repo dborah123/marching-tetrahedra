@@ -18,6 +18,7 @@ void marching_tets();
 Mesh<Triangle>& get_mesh();
 HalfEdgeMesh<Triangle> get_halfmesh();
 void run_viewer();
+void test_validity();
 
 private:
 Grid<Tet>& _tet_grid;
@@ -50,6 +51,10 @@ int add_vertex_to_mesh(int tet_index, int index0, int index1);
 /* Orientating New Triangle */
 int check_orientation(int *tri_indices);
 void change_orientation(int *tri_indices);
+
+int check_zero_isovalues(int v0_index, int v1_index, int new_vertex_index);
+
+
 
 };
 

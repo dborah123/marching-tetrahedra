@@ -21,6 +21,7 @@ main(int argc, char *argv[]) {
     m_tet.marching_tets();
     Mesh<Triangle>& mesh = m_tet.get_mesh();
     
-    HalfEdgeMesh<Triangle> halfmesh(mesh);
+    m_tet.test_validity();
+    // HalfEdgeMesh<Triangle> halfmesh(mesh);
     m_tet.run_viewer();
 }
