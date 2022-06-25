@@ -81,8 +81,11 @@ MarchingTet::preprocess_isovalues() {
     Vertices& vertices = _tet_grid.vertices();
     int num_vertices = vertices.nb();
     
+    double function_value;
+
     for (int i = 0; i < num_vertices; ++i) {
-        _isovalues[i] = _function(vertices[i]);
+        function_value = _function(vertices[i]);
+        _isovalues[i] = function_value;
     }
 }
 
@@ -141,8 +144,7 @@ MarchingTet::get_intersection_point(int v0_index, int v1_index) {
      */
     // Getting coordinates of vertices
     Vertices& vertices =_tet_grid.vertices();
-    // vec3d v0(vertices[v0_index]);
-    // vec3d v1(vertices[v1_index]);
+
     vec3d v0(vertices[v0_index]);
     vec3d v1(vertices[v1_index]);
 
@@ -189,10 +191,13 @@ MarchingTet::create_triangles(int tet_index, std::vector<int>& triangles_to_crea
 
             // Translating index to _tet_grid vertex index and then creating new vertex
             mesh_index = add_vertex_to_mesh(tet_index, index0, index1);
+
             tri_indices[j/2] = mesh_index;
         }
         // Checking orientation
-        if (check_orientation(tri_indices)) change_orientation(tri_indices);
+        if (check_orientation(tri_indices)) {
+            change_orientation(tri_indices);
+        }
 
         // Adding new triangle to mesh
         _mesh.add(tri_indices);
@@ -221,9 +226,29 @@ MarchingTet::add_vertex_to_mesh(int tet_index, int index0, int index1) {
     if (_inserted_edges.find(vertices) != _inserted_edges.end())
         return _inserted_edges[vertices];
 
+    int new_vertex_index = _mesh.vertices().nb();
+
+    // If intersection with function is a point exactly, return point's index 
+    // if already created
+    // if (_zero_isovalue_points.find(v0_index) != _zero_isovalue_points.end()) {
+    //     if (_zero_isovalue_points[v0_index] > -1) {
+    //         return _zero_isovalue_points[v0_index];
+    //     } else {
+    //         _zero_isovalue_points[v0_index] = new_vertex_index;
+    //     }
+    // }
+
+    // if (_zero_isovalue_points.find(v1_index) != _zero_isovalue_points.end()) {
+    //     if (_zero_isovalue_points[v1_index] > -1) {
+    //         return _zero_isovalue_points[v1_index];
+    //     } else {
+    //         _zero_isovalue_points[v1_index] = new_vertex_index;
+    //     }
+    // }
+
     // Get intersection point and add new point to _mesh vertices
     vec3d new_point = get_intersection_point(v0_index, v1_index);
-    int new_vertex_index = _mesh.vertices().nb();
+
     _mesh.vertices().add(new_point.data());
 
     // Get new vertex's index, add to _inserted_edges and return

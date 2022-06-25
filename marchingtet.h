@@ -25,6 +25,7 @@ TetFunction& _function;
 std::map<std::set<int>, double> _inserted_edges; // Maps two vertices(edge) to 
                                                  // intersection 
 std::map<int,double> _isovalues;                 // Maps tet vertex index to isovalue
+std::map<int, int> _zero_isovalue_points;
 Mesh<Triangle> _mesh;
 
 /* Static Tables */
