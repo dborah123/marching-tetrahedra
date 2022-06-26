@@ -53,7 +53,7 @@ int check_orientation(int *tri_indices);
 void change_orientation(int *tri_indices);
 
 int check_zero_isovalues(int v0_index, int v1_index, int new_vertex_index);
-
+int check_repeat_vertices(int *tri_indices);
 
 
 };

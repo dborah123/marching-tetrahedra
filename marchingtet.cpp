@@ -194,13 +194,14 @@ MarchingTet::create_triangles(int tet_index, std::vector<int>& triangles_to_crea
 
             // Translating index to _tet_grid vertex index and then creating new vertex
             mesh_index = add_vertex_to_mesh(tet_index, index0, index1);
-
             tri_indices[j/2] = mesh_index;
         }
-        // Checking orientation
-        if (check_orientation(tri_indices)) {
-            change_orientation(tri_indices);
-        }
+
+        // If there are repeat vertices, do not create triangle here
+        if (check_repeat_vertices(tri_indices)) continue;
+
+        // Checking orientation and changing it if it creates negative area
+        if (check_orientation(tri_indices)) change_orientation(tri_indices);
 
         // Adding new triangle to mesh
         _mesh.add(tri_indices);
@@ -315,6 +316,16 @@ MarchingTet::check_zero_isovalues(
     return -2;
 }
 
+int
+MarchingTet::check_repeat_vertices(int *tri_indices) {
+    int j,k;
+    for (int i = 0; i < 3; ++i) {
+        j = i % 3;
+        k = (i+1) % 3;
+        if (tri_indices[j] == tri_indices[k]) return 1;
+    }
+    return 0;
+}
 void
 MarchingTet::run_viewer() {
     Viewer viewer;
@@ -329,6 +340,9 @@ MarchingTet::get_mesh() {
 
 void
 MarchingTet::test_validity() {
+    /**
+     * Test for debugging. Tester in flux not cooperating with me
+     */
     std::cout << "STATISTICS: " << '\n';
     std::cout << "triangles: " << _mesh.nb() << '\t';
     std::cout << "vertices: " << _mesh.vertices().nb() << '\n';
@@ -353,13 +367,7 @@ MarchingTet::test_validity() {
         }
     }
 
-    // std::cout << vertex_map[347] << std::endl;
-
     for (auto iter = vertex_map.begin(); iter != vertex_map.end(); iter++) {
-        // if (iter->second < 5) {
-        //     std::cout << iter->first << std::endl;
-        // }
-
         if (iter->second > 12) {
             std::cout << iter->first << '\t' << iter->second << std::endl;
         }
