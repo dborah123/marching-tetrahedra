@@ -85,6 +85,8 @@ MarchingTet::preprocess_isovalues() {
 
     for (int i = 0; i < num_vertices; ++i) {
         function_value = _function(vertices[i]);
+
+        // If there is a driect intersection with the function and vertex, make note
         if (function_value == 0.0) {
             _zero_isovalue_points[i] = -1;
         }
@@ -102,6 +104,7 @@ MarchingTet::reconstruct_tet_surface(int tet_index) {
     int tet_case;
     if (!(tet_case = determine_case(tet_isovalues))) return;
 
+    // Retrieve what architecture of triangle(s) to create in tet and creating them
     std::vector<int> triangles_to_create = _triangletable[tet_case];
     create_triangles(tet_index, triangles_to_create);
 }
@@ -121,8 +124,8 @@ MarchingTet::get_tet_isovalues(int tet_index, std::vector<double>& tet_isovalues
 int
 MarchingTet::determine_case(std::vector<double>& tet_isovalues) {
     /**
-     * Returns case represented by the integer whose bits store which edges are 
-     * intersected. Uses edgetable to assist in this
+     * Determines case represented by the integer whose bits store which edges are 
+     * intersected. Uses _edgetable to assist in this
      * 
      * \returns: the case if one. If there is no intersection, then it returns 0
      */
@@ -143,11 +146,10 @@ MarchingTet::determine_case(std::vector<double>& tet_isovalues) {
 vec3d
 MarchingTet::get_intersection_point(int v0_index, int v1_index) {
     /**
-     * Gets intersection point of edge with function
+     * Gets intersection point of edge with analytic function (_function)
      */
     // Getting coordinates of vertices
     Vertices& vertices =_tet_grid.vertices();
-
     vec3d v0(vertices[v0_index]);
     vec3d v1(vertices[v1_index]);
 
@@ -162,11 +164,11 @@ MarchingTet::get_intersection_point(int v0_index, int v1_index) {
     double w0 = (d1) / (d0 + d1);
     double w1 = (d0) / (d0 + d1);
 
+    // intersection point = w0*ev + w1*v1
     for ( int i = 0; i < 3; ++i) {
         v0[i] *= w0;
         v1[i] *= w1;
     }
-
     vec3d intersection_point = v0 + v1;
 
     return intersection_point;
@@ -230,8 +232,11 @@ MarchingTet::add_vertex_to_mesh(int tet_index, int index0, int index1) {
     if (_inserted_edges.find(vertices) != _inserted_edges.end())
         return _inserted_edges[vertices];
 
+    // Get new vertex index
     int new_vertex_index = _mesh.vertices().nb();
 
+    // If this vertex has an isovalue of 0.0, check to see if point has been created.
+    // If so, get return previous vertex index
     int res = check_zero_isovalues(v0_index, v1_index, new_vertex_index);
     if (res > -1) return res;
 
@@ -251,7 +256,7 @@ MarchingTet::check_orientation(int *tri_indices) {
      * Checks to see if the triangles are oriented correctly. Uses orient3d to make
      * sure no negative area is created
      * 
-     * PARAMS: tri_indices must be an array of length 3 of the three inidices of 
+     * PARAMS: tri_indices must be an array of length 3 of the three indices of 
      * vertices for new triangle
      * 
      * RETURNS: 0 if oriented correctly and 1 if it isn't
@@ -299,25 +304,36 @@ MarchingTet::check_zero_isovalues(
      * vertex hasn't been created yet, return -1. If vertex doesn't intersect, return -2
      */
     if (_zero_isovalue_points.find(v0_index) != _zero_isovalue_points.end()) {
-        if (_zero_isovalue_points[v0_index] > -1) {
+        if (_zero_isovalue_points[v0_index] > -1) { // vertex has been created already, return it
             return _zero_isovalue_points[v0_index];
         }
+        // Vertex still needs to be created. Change entry in _zero_isovalue_points to 
+        // new index and create new point after
         _zero_isovalue_points[v0_index] = new_vertex_index;
         return -1;
     }
 
     if (_zero_isovalue_points.find(v1_index) != _zero_isovalue_points.end()) {
-        if (_zero_isovalue_points[v1_index] > -1) {
+        if (_zero_isovalue_points[v1_index] > -1) { // vertex has been created already, return it
             return _zero_isovalue_points[v1_index];
         }
+        // Vertex still needs to be created. Change entry in _zero_isovalue_points to 
+        // new index and create new point after
         _zero_isovalue_points[v1_index] = new_vertex_index;
         return -1;
     }
-    return -2;
+    return -1;
 }
 
 int
 MarchingTet::check_repeat_vertices(int *tri_indices) {
+    /**
+     * Checks prosepctive new triangle for _mesh and sees if there are repeating 
+     * vertices. If so, multiple intersections occur at a vertex... do not create 
+     * triangle
+     * 
+     * RETURNS: 1 if there are repeat vertices and 0 if not
+     */
     int j,k;
     for (int i = 0; i < 3; ++i) {
         j = i % 3;
@@ -326,6 +342,7 @@ MarchingTet::check_repeat_vertices(int *tri_indices) {
     }
     return 0;
 }
+
 void
 MarchingTet::run_viewer() {
     Viewer viewer;
