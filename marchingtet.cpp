@@ -16,6 +16,10 @@ _mesh(3) {
 
 void
 MarchingTet::initialize_edgetable() {
+    /**
+     * Initializes table that translates from edgecases to what case of 
+     * trangles to create
+     */
     _edgetable[1]  = 13;
     _edgetable[14] = 13;
 
@@ -54,7 +58,6 @@ MarchingTet::initialize_triangletable() {
     _triangletable[53] = {0,3, 1,3, 0,2, 0,2, 1,3, 1,2};
     _triangletable[43] = {0,3, 2,3, 0,1, 2,3, 1,2, 0,1};
     _triangletable[30] = {2,3, 1,3, 0,2, 0,2, 1,3, 0,1};
-
 }
 
 void

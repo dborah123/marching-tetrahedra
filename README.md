@@ -20,6 +20,13 @@ The initial step of this algorithm is to define a grid of tetrahedra. Looping th
    1. Retrieve vector of isovalues for each vertex in tetrahedra
    2. Determine which case the tetrahedra is in
    3. If tetrahedra does intersect with sphere, add intersections to the mesh and create a triangle/triangles
+  
+***Corner Cases:***  
+One corner case that occurred was if a vertex had an isovalue of 0. This means the analytic function crossed paths with this vertex. This would create problems as sometimes, you would want to create triangles using this point, but other times you did not. You did not if the triangle had two or more points that resolved to intersect with this said vertex. This would mean that there is a triangle with negative area.  
+
+The way I solved this problem was using a map that mapped tet vertex (int) to its corresponding vertex in the new triangle mesh (int). In `preprocess_isovalues`, I added entries into this map with indices of -1. Then, when I went to create vertices for my triangles in my algorithm, I checked if the two vertices of the tet edge I was looking at had isovalues of 0. If so, I would check my map and see if this triangle mesh vertex that intersected with this exact point had been created already. Then, when I finished accumulating the three vertex indices in my triangle mesh to create a triangle, I would make sure there were no repeat triangles. This solved my issue as no ghost vertices remained hidden in my mesh.
+
+Another small corner case/issue I had to deal with was orientation. This was solved by creating the functions `check_orientation` and `change_orientation`. Using `orient3d`, I was able to check whether the new triangle that was about to be added created negative area. If so, I would switch vertices 0 and 2 to reverse the order the of the triangle, correcting the orientation.
 
 ## **Results:**
 These results will only be focused on a sphere function as our analytic function. With this, our only input that changes is the dimensions of the tetrahedron grid that assists in the creation of the sphere. The higher number of tetrahedra, the higher number of triangles in the resulting sphere mesh.

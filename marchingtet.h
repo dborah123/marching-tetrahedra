@@ -30,8 +30,10 @@ std::map<int, int> _zero_isovalue_points;
 Mesh<Triangle> _mesh;
 
 /* Static Tables */
-std::map<int,int> _edgetable;
-std::map<int, std::vector<int>> _triangletable;
+std::map<int,int> _edgetable; // Edge case mapped to triangle creation case
+std::map<int, std::vector<int>> _triangletable; // Triangle creation case to vertex pairs
+                                                // (edges) to create new triangle vertex
+                                                // at edge intersection
 
 /* Initialization Functions */
 void initialize_edgetable();
@@ -52,14 +54,9 @@ int add_vertex_to_mesh(int tet_index, int index0, int index1);
 int check_orientation(int *tri_indices);
 void change_orientation(int *tri_indices);
 
+/* Other Checks */
 int check_zero_isovalues(int v0_index, int v1_index, int new_vertex_index);
 int check_repeat_vertices(int *tri_indices);
-
-
 };
-
-
 } // flux
-
-
 #endif
